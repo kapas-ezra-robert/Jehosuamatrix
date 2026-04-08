@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jézus-centrikus ekklesiológiai mátrix</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0d0b;
+    --bg2: #161410;
+    --bg3: #1e1b16;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.15);
+    --green: #2d7a4f;
+    --green-dim: rgba(45,122,79,0.12);
+    --amber: #d4830a;
+    --amber-dim: rgba(212,131,10,0.12);
+    --text: #e8e0d0;
+    --text-dim: #9a9080;
+    --text-muted: #5a5248;
+    --border: rgba(201,168,76,0.18);
+    --border-dim: rgba(255,255,255,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  header {
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '✦';
+    position: absolute;
+    right: 40px; top: 40px;
+    font-size: 80px;
+    color: var(--gold);
+    opacity: 0.08;
+  }
+
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--text);
+    max-width: 700px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold2);
+  }
+
+  .header-sub {
+    margin-top: 16px;
+    font-size: 16px;
+    color: var(--text-dim);
+    font-style: italic;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .header-note {
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-left: 2px solid var(--gold);
+    background: var(--gold-dim);
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 680px;
+    line-height: 1.7;
+  }
+
+  /* Criteria section */
+  .criteria-section {
+    padding: 40px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: 0.7;
+  }
+
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+  }
+
+  .criterion {
+    background: var(--bg3);
+    border: 1px solid var(--border-dim);
+    padding: 18px 20px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .criterion:hover { border-color: var(--border); }
+
+  .criterion-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    opacity: 0.6;
+    margin-bottom: 6px;
+  }
+
+  .criterion-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .criterion-ref {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Main matrix */
+  .matrix-section {
+    padding: 40px;
+  }
+
+  .matrix-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 1100px;
+  }
+
+  thead tr:first-child th {
+    padding: 0 0 24px;
+    text-align: left;
+    vertical-align: bottom;
+  }
+
+  .th-denom {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.6;
+    width: 160px;
+    min-width: 160px;
+    padding-bottom: 24px !important;
+  }
+
+  .th-criterion {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-align: center;
+    width: 80px;
+    min-width: 72px;
+    padding: 0 6px 24px !important;
+    line-height: 1.3;
+    vertical-align: bottom;
+  }
+
+  .th-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+    text-align: center;
+    width: 70px;
+    min-width: 70px;
+    padding-bottom: 24px !important;
+  }
+
+  .th-warning {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    width: 260px;
+    min-width: 240px;
+    padding-left: 20px !important;
+    padding-bottom: 24px !important;
+    vertical-align: bottom;
+  }
+
+  /* Criterion header labels */
+  .crit-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Separator row */
+  .group-header td {
+    padding: 20px 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.5;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  /* Data rows */
+  tbody tr.denom-row {
+    border-bottom: 1px solid var(--border-dim);
+    transition: background 0.15s;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  tbody tr.denom-row:hover { background: rgba(255,255,255,0.025); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  td {
+    padding: 14px 8px;
+    vertical-align: middle;
+  }
+
+  .td-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    padding-left: 0;
+    white-space: nowrap;
+  }
+
+  .td-name small {
+    display: block;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 2px;
+    white-space: normal;
+  }
+
+  /* Score cells */
+  .score-cell {
+    text-align: center;
+    position: relative;
+  }
+
+  .dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    position: relative;
+  }
+
+  .dot-3 { background: var(--green-dim); color: #5dba8a; border: 1px solid rgba(45,122,79,0.4); }
+  .dot-2 { background: var(--amber-dim); color: #f0a030; border: 1px solid rgba(212,131,10,0.35); }
+  .dot-1 { background: var(--red-dim); color: #e06050; border: 1px solid rgba(192,57,43,0.35); }
+  .dot-0 { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  /* Total score */
+  .total-cell {
+    text-align: center;
+  }
+
+  .total-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 400;
+    border-radius: 2px;
+  }
+
+  .total-high { background: var(--green-dim); color: #5dba8a; border: 1px solid rgba(45,122,79,0.4); }
+  .total-mid { background: var(--amber-dim); color: #f0a030; border: 1px solid rgba(212,131,10,0.35); }
+  .total-low { background: var(--red-dim); color: #e06050; border: 1px solid rgba(192,57,43,0.35); }
+
+  /* Warning column */
+  .td-warning {
+    padding-left: 20px;
+    border-left: 1px solid var(--border-dim);
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .td-warning strong {
+    color: #e06050;
+    font-style: normal;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Legend */
+  .legend {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border-dim);
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .legend-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .legend-items {
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+  }
+
+  /* Tooltip */
+  .has-tooltip { position: relative; cursor: help; }
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%; transform: translateX(-50%);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    min-width: 200px;
+    line-height: 1.6;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .has-tooltip:hover .tooltip { display: block; }
+
+  /* Methodological note */
+  .method-note {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border-dim);
+    max-width: 900px;
+  }
+
+  .method-note p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .method-note p:last-child { margin-bottom: 0; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    header, .criteria-section, .matrix-section, .legend, .method-note {
+      padding: 24px 20px;
+    }
+    h1 { font-size: 26px; }
+  }
+
+  /* Scroll hint */
+  .scroll-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    padding: 0 40px 12px;
+    display: none;
+  }
+  @media (max-width: 1300px) { .scroll-hint { display: block; } }
+
+  /* Staggered row animation */
+  tbody tr.denom-row:nth-child(1) { animation-delay: 0.05s; }
+  tbody tr.denom-row:nth-child(2) { animation-delay: 0.1s; }
+  tbody tr.denom-row:nth-child(3) { animation-delay: 0.15s; }
+  tbody tr.denom-row:nth-child(4) { animation-delay: 0.2s; }
+  tbody tr.denom-row:nth-child(5) { animation-delay: 0.25s; }
+  tbody tr.denom-row:nth-child(6) { animation-delay: 0.3s; }
+  tbody tr.denom-row:nth-child(7) { animation-delay: 0.35s; }
+  tbody tr.denom-row:nth-child(8) { animation-delay: 0.4s; }
+  tbody tr.denom-row:nth-child(9) { animation-delay: 0.45s; }
+  tbody tr.denom-row:nth-child(10) { animation-delay: 0.5s; }
+  tbody tr.denom-row:nth-child(11) { animation-delay: 0.55s; }
+  tbody tr.denom-row:nth-child(12) { animation-delay: 0.6s; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Ekklesiológiai vizsgálat · 2026</div>
+  <h1>Jézus-centrikus<br><em>gyülekezeti mátrix</em></h1>
+  <p class="header-sub">
+    Keresztény felekezetek összehasonlítása Jézus saját tanításai alapján —
+    nem egy denominációs pozícióból, hanem az evangéliumok közvetlen parancsaiból kiindulva.
+  </p>
+  <div class="header-note">
+    ⚠ Ez a mátrix <strong>tendenciákat és jellegzetes kockázatokat</strong> mutat, nem egyedi gyülekezeteket ítél meg.
+    Minden felekezetben élnek hiteles tanítványok — és minden felekezetben jelen vannak a jelzett buktatók.
+    A pontszámok az <em>intézményi kultúra és teológia</em> jellemző hangsúlyait tükrözik.
+  </div>
+</header>
+
+<div class="criteria-section">
+  <div class="section-title">A 8 mérce — Jézus tanításaiból</div>
+  <div class="criteria-grid">
+    <div class="criterion">
+      <div class="criterion-num">01</div>
+      <div class="criterion-title">Szeretet mint parancs</div>
+      <div class="criterion-ref">Mt 22:37–39 · Jn 13:34–35</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">02</div>
+      <div class="criterion-title">Szegények / kiszorítottak gondozása</div>
+      <div class="criterion-ref">Mt 25:31–46 · Lk 4:18 · Lk 6:20</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">03</div>
+      <div class="criterion-title">Alázat / hatalomtagadás</div>
+      <div class="criterion-ref">Mk 10:42–45 · Mt 20:26 · Jn 13:14</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">04</div>
+      <div class="criterion-title">Megbocsátás / ellenség-szeretet</div>
+      <div class="criterion-ref">Mt 5:44 · Mt 18:21–22 · Lk 6:27</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">05</div>
+      <div class="criterion-title">Egység a sokféleségben</div>
+      <div class="criterion-ref">Jn 17:21 · Mt 18:20</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">06</div>
+      <div class="criterion-title">Képmutatás kerülése</div>
+      <div class="criterion-ref">Mt 23 · Mt 6:1–6 · Lk 18:9–14</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">07</div>
+      <div class="criterion-title">Krisztus-centrikusság / ige-hűség</div>
+      <div class="criterion-ref">Jn 14:6 · Jn 8:31 · Mt 7:24–27</div>
+    </div>
+    <div class="criterion">
+      <div class="criterion-num">08</div>
+      <div class="criterion-title">Missziói jelenlét a világban</div>
+      <div class="criterion-ref">Mt 28:19 · Jn 20:21 · Mt 5:13–16</div>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-hint">← görgets jobbra a teljes táblázathoz →</div>
+
+<div class="matrix-section">
+  <div class="section-title">Összehasonlító mátrix</div>
+  <div class="matrix-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th class="th-denom">Felekezet</th>
+        <th class="th-criterion"><div class="crit-label">① Szeretet</div></th>
+        <th class="th-criterion"><div class="crit-label">② Szegények</div></th>
+        <th class="th-criterion"><div class="crit-label">③ Alázat</div></th>
+        <th class="th-criterion"><div class="crit-label">④ Megbocsátás</div></th>
+        <th class="th-criterion"><div class="crit-label">⑤ Egység</div></th>
+        <th class="th-criterion"><div class="crit-label">⑥ Képmutatás</div></th>
+        <th class="th-criterion"><div class="crit-label">⑦ Ige-hűség</div></th>
+        <th class="th-criterion"><div class="crit-label">⑧ Misszió</div></th>
+        <th class="th-score">Összkép</th>
+        <th class="th-warning">Jellegzetes buktató</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- PROTESTÁNS MAINSTREAM -->
+      <tr class="group-header">
+        <td colspan="11">Protestáns mainstream</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Baptista<small>konzervatív evangéliumi ág</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Erős közösségi szeretet-kultúra,<br>de sokszor csak belfelé irányul</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Karitatív munka jelen van,<br>de strukturális igazságosság ritkán</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Papság tagadása elvben helyes,<br>de pasztori tekintély erős lehet</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Megbocsátás teológiailag<br>hangsúlyos és tanított</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Denominációs exkluzivitás,<br>széttagoltság jellemző</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Részben küzd a vallási<br>teljesítmény-kultúrával</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Sola Scriptura elvben erős,<br>bibliai igehirdetés hangsúlyos</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Erős evangelizációs kultúra,<br>misszió tudatos prioritás</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">19/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Szótériológiai túlhangsúly: a „ki van bent / kint" kérdés elnyomhatja a Mk 10-es szolgáló-lét modellt. Az egység (Jn 17) szinte soha nem téma.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Református / Presbiteriánus<small>kálvini tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Teológiailag komolyan veszi,<br>de emocionálisan hűvös kultúra</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Diakónusi szolgálat elvben<br>megvan, gyakorlatban változó</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Presbiteri struktúra elvben<br>elosztott, de vén-tekintély erős</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Megtanítják, de a kegyességi<br>kultúra lehet hideg és ítélkező</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ökumenikus párbeszédre<br>általában nyitottabb mint baptisták</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Intellektualizmus és doktrinális<br>büszkeség valós veszély</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Erős exegetikai kultúra,<br>Westminster-hűség</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói teológia erős,<br>de aktivizmusban változó</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">16/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Doktrinális elitizmus: „mi értjük a Bibliát helyesen" attitűd. A Mt 23-as farizeuskritika pontosan erre a típusra vonatkozik. Az értelmi hivők klubjává válhat.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Lutheránus<small>evangélikus tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Szeretet-etika megvan,<br>de közösségi melegség változó</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Diakóniai hagyomány erős,<br>szociális felelősség hangsúlyos</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Lelkészi tekintély ma is erős,<br>hierarchia implicit megmarad</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Lutheri kegyelem-teológia<br>a megbocsátást centrálissá teszi</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ökumenikus párbeszédre<br>általában nyitott</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Formai kegyesség és<br>liturgikus rutinizálódás kockázat</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Sola Scriptura és<br>Krisztus-centrikus igehirdetés</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói aktivitás változó,<br>sok helyen visszahúzódó</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">19/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Formalizmus / kulturális kereszténység: a kegyelem igazsága elsüllyedhet az istentiszteleti rutinban. „Elég, hogy lutheránus vagyok" — a Laodicea-karakter tipikus megjelenési formája.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Metodista<small>weslei tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Wesley: a szeretet az<br>egész teológia középpontja</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Erős szociális érzékenység,<br>igazságossági hagyomány</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Elvben alázatra törekszik,<br>intézményileg mégis hierarchikus</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Megbocsátás és kegyelem<br>központi helyen van</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ökumenikusan nyitott,<br>de denominációs korlátok megmaradnak</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Szociális aktivizmus néha<br>elveszíti Krisztus-centrikusságát</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Bibliahűség liberális ágban<br>meggyengült</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Aktív missziói és<br>diakóniai jelenlét</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">20/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Szociális evangélium túlhangsúlya: Jézus szavai a szegényekről elszakadhatnak a személyes megtéréstől. Liberális ágban a Krisztus-centrikusság helyét átveheti a progresszív agenda.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Anglikán / Episzkopális<small>Book of Common Prayer tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Szeretet hangsúlyos liturgikusan,<br>de közösségi mélység változó</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Karitatív munka jelen van,<br>de osztályalapú struktúra erős</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Episzkopális hierarchia<br>Mk 10-zel komoly feszültségben áll</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Tanított, de intézményi<br>kultúra inkább hideg</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Via media hagyomány:<br>széles inkluzivitás</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Intézményi presztízs és<br>kulturális kereszténység kockázata</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Konzervatív ág erős,<br>liberális ág gyengébb</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói hagyomány erős<br>történetileg, ma változó</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">15/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Státusz-kereszténység: a püspöki tekintély és a kulturális presztízs pont az, amit Jézus a Mt 23-ban és Mk 10-ben lebont. A liturgia formává válhat élő találkozás helyett.</td>
+      </tr>
+
+      <!-- KARIZMATIKUS / PÜNKÖSDI -->
+      <tr class="group-header">
+        <td colspan="11">Karizmatikus / Pünkösdi</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Pünkösdi (trinitárius)<small>klasszikus Assemblies of God típus</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Érzelmi melegség és<br>közösségi intenzitás erős</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Karitatív aktivitás jelen van,<br>strukturális szemlélet ritkább</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Prófétai / apostoli tekintély<br>nagyon erős lehet, visszaélésre hajlamos</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Megbocsátás és helyreállítás<br>a kegyességi kultúra részei</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Más tradíciókkal szemben<br>erős kritikussá válhat</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Látványos kegyesség kockázata:<br>nyelvek, csodák mint státusz</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ige-hűség változó:<br>exegetika sokszor gyenge</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Evangelizáció és misszió<br>erős prioritás</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">16/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Charizma-bálványozás: a Lélek ajándékai (amiket Jézus nem hangsúlyozott különösebben) elvehetik a figyelmet a Mt 25-ös „ki a felebarátom" kérdéstől. Prófétai tekintélyabúzus dokumentált probléma.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Karizmatikus neo-apostoli<small>NAR, apostoli mozgalmak</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Szeretet-retorika erős,<br>de lojalitás-kultúra elnyomhatja</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Jóléti teológia sok ágban<br>a szegényekre adott Jézus-választ torzítja</span></div></td>
+        <td class="score-cell"><div class="dot dot-0 has-tooltip">0<span class="tooltip">Apostoli / prófétai hierarchia<br>kifejezetten ellentmond Mk 10-nek</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Tanítják, de a tekintély-struktúra<br>visszaélések melegágya lehet</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Más gyülekezetekre mint<br>szellemileg elmaradottakra tekint</span></div></td>
+        <td class="score-cell"><div class="dot dot-0 has-tooltip">0<span class="tooltip">Nyilvános „próféciák", csodaigények,<br>látványos tekintélykultúra</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Bibliai szöveg gyakran<br>csak igazolásra szolgál</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Missziói energia és<br>növekedési fókusz erős</span></div></td>
+        <td class="total-cell"><span class="total-badge total-low">10/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Hatalomteológia: a legdirektebb ellentmondás Jézus Mk 10:42–45-ös parancsával. „Apostoli tekintély" és „szellemi hadviselés" retorika messze távolodhat a lábmosó Jézustól.</td>
+      </tr>
+
+      <!-- LITURGIKUS TRADÍCIÓK -->
+      <tr class="group-header">
+        <td colspan="11">Liturgikus tradíciók</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Római Katolikus<small>latin tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Szeretet-etika és felebarát<br>teológia mélyen kidolgozott</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Karitatív munka és szociális<br>tanítás egyik legerősebb tradíció</span></div></td>
+        <td class="score-cell"><div class="dot dot-0 has-tooltip">0<span class="tooltip">Pápai / episzkopális hierarchia<br>és Mk 10 között mély feszültség</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Gyónás és feloldozás mint<br>megbocsátás-gyakorlat intézményes</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ökumenikus párbeszéd II. Vatikán<br>óta javult, de exkluzivitás megmaradt</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Formális kegyesség és<br>intézményi presztízs valós kockázat</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ige + Tradíció kettőssége:<br>Krisztus nem mindig áll első helyen</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói aktivitás erős<br>globálisan, de helyi változó</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">16/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Intézményi hatalom: a papság és a hierarchia pontosan az, amit Jézus a tanítványoknál el akart kerülni (Mk 10, Jn 13). A rendszer jót tesz — de Krisztus neve alatt emberi hatalmat is legitimál.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Keleti Ortodox<small>bizánci tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Theózis-teológia: Isten szeretete<br>az ember átalakulásának célja</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Közösségi gondoskodás jelen van,<br>de intézményes szociális munka gyengébb</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Patriarkális hierarchia erős,<br>de szerzetesi alázat-tradíció ellensúlyoz</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Megbocsátás liturgikusan<br>mélyen strukturált (pl. Bocsánat-vasárnap)</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Nemzeti egyház + orthodoxia-exkluzivitás<br>komoly egység-probléma</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Rituális gazdagság segíthet,<br>de formai rutinizálódás kockázata</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Krisztus-centrikus teológia erős,<br>de tradíció súlya nagyon nagy</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Missziói aktivizmus<br>általában gyenge</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">15/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Etno-vallási összefonódás: az Egyház és a Nemzet azonosítása (orosz, görög, szerb orthodoxia) messze eltér Jézus Jn 17-es egység-imájától és Mt 28-as „minden népek" missziójától.</td>
+      </tr>
+
+      <!-- MARGINÁLIS / VITÁS POZÍCIÓJÚ -->
+      <tr class="group-header">
+        <td colspan="11">Speciális / vitatott teológiai pozíció</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Hetednapi Adventista<small>SDA</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Szeretet-etika jelen van,<br>törvény-hangsúly néha háttérbe szorítja</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Egészségügyi misszió, kórházak,<br>szociális jelenlét erős</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ellen White tekintélye<br>ambivalens: profetikus versus kötelező</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Megbocsátás tanított,<br>de perfekcionizmus feszültsége van</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Szombat-kérdés az egységet<br>szétfeszítő elem más tradíciókkal</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Étkezési és szombati szabályok<br>képmutatáshoz vezető lehetnek</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Bibliahűség elvben erős,<br>de Ellen White szűrőn át</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Globális misszió és<br>egészségügyi jelenlét kiemelkedő</span></div></td>
+        <td class="total-cell"><span class="total-badge total-mid">16/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Törvényesség mint identitás: a szombat és az étrend kérdései Jézus Mt 12:1–14-es szombat-vitájával összefüggésben kell vizsgálni. „A szombat lett az emberért, nem az ember a szombatért."</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Jehova Tanúi<small>Watch Tower Society</small></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Közösségi gondoskodás intenzív,<br>de kizárólag belső körre vonatkozik</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Felebarát-fogalom leszűkül:<br>„a világ" negatív kategória</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Szervezeti tekintély<br>és Watch Tower irányítás erős</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Belső megbocsátás tanított,<br>kizárás és shunning súlyos ellenpont</span></div></td>
+        <td class="score-cell"><div class="dot dot-0 has-tooltip">0<span class="tooltip">Más keresztényeket<br>nem tekint valódi testvéreknek</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Ajtónállás / misszió teljesítmény-<br>alapú, látható kegyesség</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Krisztus istenségének tagadása<br>Jn 14:6 értelmezését alapvetően érinti</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Evangelizációs aktivitás<br>intenzív, de módszertanilag zárt</span></div></td>
+        <td class="total-cell"><span class="total-badge total-low">10/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Szervezet mint közvetítő: a „Hű és okos szolga" (szervezet) Krisztus és a hívő közé ékelődik. A shunning (közösség-megvonás) kizárt tagokkal szemben ellentmond Mt 18:21–22-nek és az ellenség-szeretetnek.</td>
+      </tr>
+
+      <!-- ORGANIKUS / SZABAD EGYHÁZI TRADÍCIÓK -->
+      <tr class="group-header">
+        <td colspan="11">Organikus / szabad egyházi tradíciók</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Testvér gyülekezetek<small>Plymouth Brethren · Darby-tradíció</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Kölcsönös szeretet és egymás<br>gondozása erősen hangsúlyos</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Diakóniai érzékenység jelen van,<br>de szociális igazságosság ritkán téma</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Lelkészi hivatal elutasítása elvben:<br>„minden hívő pap" komolyan vett</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Megbocsátás és kegyelem<br>teológiailag és gyakorlatilag hangsúlyos</span></div></td>
+        <td class="score-cell"><div class="dot dot-1 has-tooltip">1<span class="tooltip">Nyílt és zárt testvérek szétválása,<br>kizárás-kultúra komoly probléma</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Egyszerűség és formatagadás elvben jó,<br>de doktrinális büszkeség megjelenhet</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Erős bibliamagyarázati kultúra,<br>Krisztus-centrikus istentisztelet</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói érzékenység változó:<br>befelé forduló közösségek kockázata</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">19/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Kizárás mint fegyelem: a Brethren közösségek történetileg hírhedtek a szétszakadásokról és a közösség-megvonásról. A tisztaság megőrzése Jézus Jn 17-es egység-imájával kerül feszültségbe. A látható egyszerűség rejtett büszkeséggé válhat.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Anabaptista / Mennonita<small>16. sz. radikális reformáció</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Testvéri szeretet és<br>közösségi élet a teológia középpontja</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Szegények gondozása, béke-igazságosság,<br>egyszerű életvitel strukturálisan beépített</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Mk 10 talán a legtudatosabban<br>vett komolyan: vezető = szolga</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Pacifizmus és ellenség-szeretet<br>Mt 5:44 legkövetkezetesebb alkalmazása</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Ökumenikusan nyitott,<br>de közösségi határok erősek lehetnek</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Egyszerűség hangsúlyos, de<br>hagyományőrzés új formalizmussá válhat</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Jézus tanításai (Sermon on the Mount)<br>normatív és szó szerinti tekintéllyel bírnak</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Jelenlét-misszió erős,<br>evangelizációs aktivizmus kevésbé</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">22/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Kulturális bezárkózás: a közösségi tisztaság megőrzése (különösen Amish, konzervatív Mennonita ágakban) a világtól való elkülönülésbe fordulhat, ami ellentmond Jézus „só és világosság" képének (Mt 5:13–16) és Jn 20:21-es küldetésének.</td>
+      </tr>
+
+      <tr class="denom-row">
+        <td class="td-name">Házigyülekezet mozgalom<small>organic church · simple church</small></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Kisközösségi intimitás:<br>a szeretet nem marad elvont</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Egyszerű életvitel sokszor<br>természetes kísérője, de nem mindig</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Horizontális struktúra elvben:<br>nincs állandó pásztor mint „felettes"</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Személyes kapcsolatokban<br>a megbocsátás elkerülhetetlen kérdés</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Más gyülekezetekkel való<br>kapcsolat változó: elszigetelődés kockázat</span></div></td>
+        <td class="score-cell"><div class="dot dot-3 has-tooltip">3<span class="tooltip">Látványos vallásosság strukturálisan<br>nehezebb: nincs „szereplés" alkalom</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Önálló bibliatanulmányozás erős,<br>de teológiai mélység egyenetlen</span></div></td>
+        <td class="score-cell"><div class="dot dot-2 has-tooltip">2<span class="tooltip">Missziói látás változó:<br>befelé forduló buborék kockázata</span></div></td>
+        <td class="total-cell"><span class="total-badge total-high">20/24</span></td>
+        <td class="td-warning"><strong>⚑ Fő buktató</strong>Strukturálatlanság mint új bálvány: az intézményellenesség maga válhat identitássá, és a közösség elveszítheti a kifelé irányuló missziói fókuszt. Vezető nélküli csoport könnyen uralja egy erős személyiség — csak látható struktúra nélkül, ami még nehezebben kezelhető.</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-title">Jelmagyarázat</div>
+  <div class="legend-items">
+    <div class="legend-item">
+      <div class="dot dot-3" style="width:24px;height:24px;font-size:10px;">3</div>
+      <span>Erős megfelelés / Krisztus tanítása hangsúlyos</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot dot-2" style="width:24px;height:24px;font-size:10px;">2</div>
+      <span>Részleges / ellentmondásos megvalósítás</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot dot-1" style="width:24px;height:24px;font-size:10px;">1</div>
+      <span>Gyenge / problémás terület</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot dot-0" style="width:24px;height:24px;font-size:10px;">0</div>
+      <span>Strukturális ellentmondás Jézus tanításával</span>
+    </div>
+  </div>
+</div>
+
+<div class="method-note">
+  <div class="section-title">Módszertani megjegyzések</div>
+  <p>Ez a mátrix <em>tudatosan nem rangsorol végeredményt</em>. A „maximális pontszám" fogalma félrevezető lenne, mert Jézus tanításai nem tesztelhetők le. A 3/2/1/0 skála az intézményi kultúra <em>jellegzetes tendenciáit</em> mutatja, nem egyéni hívők minőségét.</p>
+  <p>Az eredeti Philadelphia-mátrix fő hibája az volt, hogy egy denominációs pozíciót tett meg mércének. Ez a mátrix is tartalmaz értelmezési döntéseket — például hogy Jézus Mk 10-es „ne legyetek olyanok, mint akik hatalmat gyakorolnak" szava komoly kihívás minden hierarchikus egyházi struktúra számára.</p>
+  <p>A cellákon tartsd az egeret (asztali gépen) a részletesebb magyarázathoz. Minden felekezetről részletesebb elemzés kérhető.</p>
+</div>
+
+</body>
+</html>
